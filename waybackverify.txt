@@ -1,3 +1,0 @@
-URL/URL path to exclude: anisomorphism.com (and all subdomains)
-time period of domain ownership: 2021-04-16 to present
-time period to exclude: 2021-10-01 to 2022-01-31
