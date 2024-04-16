@@ -40,7 +40,7 @@ thetaRange.addEventListener("input", () => rotatecube());
 
 function rotatecube() {
   const angle = thetaRange.value;
-  cube.style.transform = `rotateY(${angle}deg)`;
+  cube.style.transform = `translateZ(-100px) rotateY(${angle}deg)`;
 }
 
 function updatePerspectiveOrigin() {
