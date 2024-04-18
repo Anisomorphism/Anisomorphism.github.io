@@ -66,6 +66,9 @@ scene3d.addEventListener('mouseleave', function(e) {
   
 
 function dragRotate(el) {
+  while(cursordistance < 0){
+    cursordistance += 360;
+  }
   thetaRange.value = (cursordistance)%360;
   rotatecube();
 } 
