@@ -31,12 +31,45 @@ for ( var i=0; i < ranges.length; i++ ) {
 
 
 var scene = document.querySelector('.scene');
-var cube = document.querySelector('.cube');
+var scene3d = document.getElementById("3dscene");
+var cube = document.getElementById("cube1");
 var originX = 50;
 var originY = 50;
 const thetaRange = document.getElementById("thetaRange");
+var cursordistance = 0;
 
 thetaRange.addEventListener("input", () => rotatecube());
+
+scene3d.addEventListener('mousemove', function(event) {
+  if(scene3d.clicked && scene3d.mouseon){
+    cursordistance += event.movementX;
+    dragRotate(scene3d);
+  }
+});
+
+scene3d.addEventListener('mousedown', function(e) {
+  scene3d.clicked = true;
+});
+
+scene3d.addEventListener('mouseup', function(e) {
+  scene3d.clicked = false;
+});
+
+scene3d.addEventListener('mouseover', function(e) {
+  scene3d.mouseon = true;
+});
+
+scene3d.addEventListener('mouseleave', function(e) {
+  scene3d.mouseon = false;
+});
+  
+
+function dragRotate(el) {
+  thetaRange.value = (cursordistance)%360;
+  rotatecube();
+} 
+
+
 
 function rotatecube() {
   const angle = thetaRange.value;
