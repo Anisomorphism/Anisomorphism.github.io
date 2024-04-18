@@ -71,6 +71,7 @@ body {
   font-weight: bold;
   color: white;
   text-align: center;
+  user-select: none;
 }
 
 .cube__face--front  { background: hsla(  0, 100%, 50%, 0.7); }
