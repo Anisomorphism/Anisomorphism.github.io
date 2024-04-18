@@ -1,3 +1,4 @@
+document.addEventListener("DOMContentLoaded", function(event) { 
 /* ==================== RangeDisplay ==================== */
 
 // displays the value of a range input
@@ -124,3 +125,5 @@ var backfaceCheckbox = document.querySelector('.backface-checkbox');
 backfaceCheckbox.onchange = function() {
   cube.classList.toggle( 'is-backface-hidden', !backfaceCheckbox.checked );
 };
+
+});
