@@ -1,49 +1,28 @@
 document.addEventListener("DOMContentLoaded", function(event) { 
-/* ==================== RangeDisplay ==================== */
 
-// displays the value of a range input
-// why isn't this in the HTML5 spec?
-function RangeDisplay( input ) {
-  this.input = input;
-  this.output = document.createElement('span');
-  this.output.className = 'range-display';
-  this.units = this.input.getAttribute('data-units') || '';
-  // events
-  var onChange = this.update.bind( this );
-  this.input.addEventListener( 'change', onChange );
-  this.input.addEventListener( 'input', onChange );
-  // set initial output
-  this.update();
-  this.input.parentNode.appendChild( this.output );
-}
 
-RangeDisplay.prototype.update = function() {
-  this.output.textContent = this.input.value + this.units;
-};
-
-/* ==================== init ==================== */
-
-// init RangeDisplays
-var ranges = document.querySelectorAll('input[type="range"]');
-for ( var i=0; i < ranges.length; i++ ) {
-  new RangeDisplay( ranges[i] );
-}
+// cube second attempt
 
 
 
-var scene = document.querySelector('.scene');
+
 var scene3d = document.getElementById("3dscene");
-var cube = document.getElementById("cube1");
-var originX = 50;
-var originY = 50;
-const thetaRange = document.getElementById("thetaRange");
-var cursordistance = 0;
+var cube = document.getElementById("cube");
+var thetaRange = document.getElementById("thetaRange");
+var deltatheta = 0;
+var deltapsi = 0;
+var psi = 0;
+var theta = 0;
+var phi = 0;
+var label = document.getElementById("degLabel");
 
 thetaRange.addEventListener("input", () => rotatecube());
 
+
 scene3d.addEventListener('mousemove', function(event) {
   if(scene3d.clicked && scene3d.mouseon){
-    cursordistance += event.movementX;
+    deltatheta = 0.01 * event.movementX;
+    deltapsi = -0.01 * event.movementY;
     dragRotate(scene3d);
   }
 });
@@ -63,70 +42,60 @@ scene3d.addEventListener('mouseover', function(e) {
 scene3d.addEventListener('mouseleave', function(e) {
   scene3d.mouseon = false;
 });
-  
+
+
 
 function dragRotate(el) {
-  while(cursordistance < 0){
-    cursordistance += 360;
+
+  psi *= (Math.PI/180);
+  theta *= (Math.PI/180);
+  phi *= (Math.PI/180);
+
+  psi += deltapsi;
+  if (psi > 2 * Math.PI) {
+    psi -= 2 * Math.PI;
   }
-  thetaRange.value = (cursordistance)%360;
+  if (psi < 0) {
+    psi += 2 * Math.PI;
+  }
+  
+  var newtheta = Math.asin(Math.cos(deltatheta)*Math.sin(theta)+Math.sin(deltatheta)*Math.cos(theta)*Math.cos(psi));
+
+  var newphi = 0;
+
+  if (Math.sin(newtheta) == 0 && newtheta < 0) {
+    newphi = Math.atan2(-(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi)),-(Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)))) - psi;
+  } else if (Math.sin(newtheta) == 0 && newtheta > 0) {
+    newphi = psi - Math.atan2(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi),Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
+  } else {
+    newphi = Math.atan2(Math.cos(deltatheta)*Math.cos(theta)*Math.sin(phi)-Math.sin(deltatheta)*(Math.cos(psi)*Math.sin(theta)*Math.sin(phi)-Math.sin(psi)*Math.cos(phi)),Math.cos(deltatheta)*Math.cos(theta)*Math.cos(phi)-Math.sin(deltatheta)*(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
+  }
+
+  psi *= (180/Math.PI);
+  theta = (180/Math.PI)*newtheta;
+  phi = (180/Math.PI)*newphi;
+  
+  if (theta >= 0) {
+    thetaRange.value = theta;
+  } else {
+    thetaRange.value = theta + 360;
+  }
+
   rotatecube();
-} 
-
-
+}
 
 function rotatecube() {
-  const angle = thetaRange.value;
-  cube.style.transform = `translateZ(-100px) rotateY(${angle}deg)`;
+
+  cube.style.transform = `translateZ(-100px) rotateX(${psi}deg) rotateY(${theta}deg) rotateZ(${phi}deg)`;
+  label.innerText = `${thetaRange.value}deg`
+
 }
-
-function updatePerspectiveOrigin() {
-  scene.style.perspectiveOrigin = originX + '% ' + originY + '%';
-}
-
-
-// perspective
-var perspectiveRange = document.querySelector('.perspective-range');
-var perspectiveDisplay = perspectiveRange.parentNode.querySelector('.range-display');
-perspectiveRange.onchange = perspectiveRange.oninput = function() {
-  var value = perspectiveRange.value + 'px';
-  // set to none at max
-  if ( value == '1000px' ) {
-    value = 'none';
-    perspectiveDisplay.textContent = 'none';
-  }
-  scene.style.perspective = value;
-};
-perspectiveRange.onchange();
-
-
-// origin x
-var originXRange = document.querySelector('.origin-x-range');
-originXRange.onchange = originXRange.oninput = function() {
-  originX = originXRange.value;
-  updatePerspectiveOrigin();
-};
-originXRange.onchange();
-
-// origin y
-var originYRange = document.querySelector('.origin-y-range');
-originYRange.onchange = originYRange.oninput = function() {
-  originY = originYRange.value;
-  updatePerspectiveOrigin();
-};
-originYRange.onchange();
-
-// spin cube
-var spinCubeCheckbox = document.querySelector('.spin-cube-checkbox');
-spinCubeCheckbox.onchange = function() {
-  cube.classList.toggle( 'is-spinning', spinCubeCheckbox.checked );
-};
-spinCubeCheckbox.onchange();
 
 // backface visibility
 var backfaceCheckbox = document.querySelector('.backface-checkbox');
 backfaceCheckbox.onchange = function() {
   cube.classList.toggle( 'is-backface-hidden', !backfaceCheckbox.checked );
 };
+
 
 });
