@@ -9,16 +9,25 @@
         <link rel="stylesheet" href="css/3dstyles.css">
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+	<script type="text/x-mathjax-config">
+		MathJax.Hub.Config({ 
+        	"HTML-CSS": { 
+			scale: 65, 
+			linebreaks: { automatic: true },
+			fonts: ["TeX"]
+		}, 
+        	SVG: { linebreaks: { automatic:true } }, 
+        	displayAlign: "left"
+		});
+	</script>
 
     </head>
     <body>
 
-	<div class="scene">
-	  <div class="panel"></div>
-	</div>
 
 <div class="scene" id="3dscene">
-  <div class="cube" id="cube1">
+  <div class="cube" id="cube">
     <div class="cube__face cube__face--front">front</div>
     <div class="cube__face cube__face--back">back</div>
     <div class="cube__face cube__face--right">right</div>
@@ -29,32 +38,9 @@
 </div>
 <p>
   <label>
-    perspective
-    <input class="perspective-range" type="range" min="1" max="1000" value="400" data-units="px" />
-  </label>
-</p>
-<p>
-  <label>
     y-rotation angle
     <input class="y-rotation-angle" type="range" id="thetaRange" min="0" max="360" value="0" data-units="deg" />
-  </label>
-</p>
-<p>
-  <label>
-    perspective-origin x
-    <input class="origin-x-range" type="range" min="0" max="100" value="50" data-units="%" />
-  </label>
-</p>
-<p>
-  <label>
-    perspective-origin y
-    <input class="origin-y-range" type="range" min="0" max="100" value="50" data-units="%" />
-  </label>
-</p>
-<p>
-  <label>
-    Spin cube
-    <input class="spin-cube-checkbox" type="checkbox" />
+    <label id="degLabel">0deg</label>
   </label>
 </p>
 <p>
@@ -63,6 +49,24 @@
     <input class="backface-checkbox" type="checkbox" checked />
   </label>
 </p>
+
+<div id="cubetext" style="width: 4em; height: 8em;">
+  <div style="transform: translate3d(0em, 0em, 2em)"><div>$$\otimes$$</div></div>
+  <div style="transform: translate3d(4em, 0em, 2em)"><div>$$\wedge$$</div></div>
+
+  <div style="transform: translate3d(0em, 4em, 2em)"><div>$$\cap$$</div></div>
+  <div style="transform: translate3d(4em, 4em, 2em)"><div>$$\int$$</div></div>
+
+  <div style="transform: translate3d(0em, 0em, -2em)"><div>$$\mathbb{R}[X]$$</div></div>
+  <div style="transform: translate3d(4em, 0em, -2em)"><div>$$\partial$$</div></div>
+
+  <div style="transform: translate3d(0em, 4em, -2em)"><div>$$\delta$$</div></div>
+  <div style="transform: translate3d(4em, 4em, -2em)"><div>$$\Omega$$</div></div>
+</div>
+<div id="math-typesetting">
+See that \(z=\partial \Delta^{\, n+1}\), where \(\partial \Delta^{\, n+1}\) is called the \(n\)-dimensional tetrahedron \(\tau^{\, n}\), is the unique \((n-1)\)-cycle up to a scalar on \(\partial \Delta^{\, n}\) as a simplicial complex. Since \(C^{\, n+1}\, (\tau^{\, n})=0\), it also generates the simplicial cohomology group \(C^{\, n}(\tau^{\, n})=H^{\, n}(\tau^{\, n})\simeq \mathbb{Z}\).
+</div>
+
 
 <script src="cubeslider.js"></script>
     </body>
