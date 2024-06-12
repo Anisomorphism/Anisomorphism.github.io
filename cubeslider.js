@@ -59,14 +59,19 @@ function dragRotate(el) {
     psi += 2 * Math.PI;
   }
   
+
   var newtheta = Math.asin(Math.cos(deltatheta)*Math.sin(theta)+Math.sin(deltatheta)*Math.cos(theta)*Math.cos(psi));
+
+  psi = Math.atan2(Math.cos(theta)*Math.sin(psi),-Math.sin(deltatheta)*Math.sin(theta)+Math.cos(deltatheta)*Math.cos(theta)*Math.cos(psi));
 
   var newphi = 0;
 
   if (Math.sin(newtheta) == 0 && newtheta < 0) {
     newphi = Math.atan2(-(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi)),-(Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)))) - psi;
+    psi = 0
   } else if (Math.sin(newtheta) == 0 && newtheta > 0) {
-    newphi = psi - Math.atan2(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi),Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
+    newphi = -Math.atan2(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi),Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
+    psi = 0;
   } else {
     newphi = Math.atan2(Math.cos(deltatheta)*Math.cos(theta)*Math.sin(phi)-Math.sin(deltatheta)*(Math.cos(psi)*Math.sin(theta)*Math.sin(phi)-Math.sin(psi)*Math.cos(phi)),Math.cos(deltatheta)*Math.cos(theta)*Math.cos(phi)-Math.sin(deltatheta)*(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
   }
@@ -86,6 +91,7 @@ function dragRotate(el) {
 
 function rotatecube() {
 
+  theta = thetaRange.value
   cube.style.transform = `translateZ(-100px) rotateX(${psi}deg) rotateY(${theta}deg) rotateZ(${phi}deg)`;
   label.innerText = `${thetaRange.value}deg`
 
