@@ -50,10 +50,22 @@ window.addEventListener('mouseup', function(e) {
 
 
 window.addEventListener('touchmove', function(e) {
+
   const touch = e.touches[0];
   if (scene3d.touched && scene3d.touchon) {
-    deltatheta = 0.001 * (touch.pageX - lastTouchX);
-    deltapsi = -0.001 * (touch.pageY - lastTouchY);
+
+    var numtouches = e.touches.length;
+    var sumX;
+    var sumY;
+    for (let i = 0; i < numtouches; i++) {
+      sumX = e.touches[i].pageX;
+      sumY = e.touches[i].pageY;
+    }
+    touch.pageX = sumX/numtouches;
+    touch.pageY = sumY/numtouches;
+
+    deltatheta = 0.01 * (touch.pageX - lastTouchX);
+    deltapsi = -0.01 * (touch.pageY - lastTouchY);
     lastTouchX = touch.pageX;
     lastTouchY = touch.pageY;
     isSceneTouchedAndFingerOn = true;
