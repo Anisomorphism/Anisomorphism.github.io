@@ -95,7 +95,7 @@ textarea {
 
 body {
     width: 638px;
-    background-color: #002b36;
+    background-color: #05464a;
     color: #93a1a1;
     text-rendering: optimizeLegibility;
 }
@@ -127,7 +127,7 @@ h1.alpha {
 }
 
 summary.alpha {
-    color: #b58900;
+    color: #ebebe9;
     font-size: 24px;
     text-transform: uppercase;
     letter-spacing: 8px;
@@ -156,7 +156,7 @@ summary.beta {
 }
 
 summary.gamma {
-    color: #2aa198;
+    color: #f17e0c;
     font-style: normal;
     font-size: 18px;
     line-height: 1.4;
