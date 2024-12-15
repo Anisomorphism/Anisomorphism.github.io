@@ -1,42 +1,22 @@
 document.addEventListener("DOMContentLoaded", function(event) { 
 
 
-// cube second attempt
-
-
-
-
 var scene3d = document.getElementById("3dscene");
 var cube = document.getElementById("cube");
-var thetaRange = document.getElementById("thetaRange");
-var phiRange = document.getElementById("phiRange");
-var psiRange = document.getElementById("psiRange");
-var deltatheta = 0;
-var deltapsi = 0;
-var qw = 1;
-var qx = 0;
-var qy = 0;
-var qz = 0;
-var psi = 0;
-var theta = 0;
-var phi = 0;
-var thetalabel = document.getElementById("thetadegLabel");
-var psilabel = document.getElementById("psidegLabel");
-var philabel = document.getElementById("phidegLabel");
+var rotation_state = [[1, 0 ,0], [0, 1, 0], [0, 0, 1]];
+var mouse_vector = [0, 0];
 var isSceneClickedAndMouseOn = false;
 var lastTouchX;
 var lastTouchY;
 var isSceneTouchedAndFingerOn = false;
 
-thetaRange.addEventListener("input", () => rotatecube());
-phiRange.addEventListener("input", () => rotatecube());
-psiRange.addEventListener("input", () => rotatecube());
 
 
 window.addEventListener('mousemove', function(event) {
   if (scene3d.clicked && scene3d.mouseon) {
-    deltatheta = 0.01 * event.movementX;
-    deltapsi = -0.01 * event.movementY;
+    mouse_vector[0] = - 0.01 * event.movementX;
+    mouse_vector[1] = - 0.01 * event.movementY;
+
     isSceneClickedAndMouseOn = true;
   }
 });
@@ -63,25 +43,6 @@ window.addEventListener('mouseup', function(e) {
 
 window.addEventListener('touchmove', function(e) {
 
-  const touch = e.touches[0];
-  if (scene3d.touched && scene3d.touchon) {
-
-    var numtouches = e.touches.length;
-    var sumX;
-    var sumY;
-    for (let i = 0; i < numtouches; i++) {
-      sumX = e.touches[i].pageX;
-      sumY = e.touches[i].pageY;
-    }
-    touch.pageX = sumX/numtouches;
-    touch.pageY = sumY/numtouches;
-
-    deltatheta = 0.01 * (touch.pageX - lastTouchX);
-    deltapsi = -0.01 * (touch.pageY - lastTouchY);
-    lastTouchX = touch.pageX;
-    lastTouchY = touch.pageY;
-    isSceneTouchedAndFingerOn = true;
-  }
   console.log(scene3d.touched);
 });
 
@@ -104,211 +65,85 @@ window.addEventListener('touchend', function(e) {
   scene3d.touchon = false;
 });
 
+function rotation_delta(mousevec) {
+  angle = Math.sqrt(mousevec[0]**2 + mousevec[1]**2);
+  axis_x = -mousevec[1]/angle;
+  axis_y = mousevec[0]/angle;
+  
+
+  return [[1 + (Math.cos(angle)-1)*axis_y**2, (1-Math.cos(angle))*axis_x*axis_y,  Math.sin(angle)*axis_y], 
+          [(1-Math.cos(angle))*axis_x*axis_y, 1 + (Math.cos(angle)-1)*axis_x**2, -Math.sin(angle)*axis_x], 
+          [-Math.sin(angle)*axis_y,           Math.sin(angle)*axis_y,             Math.cos(angle)]];
+};
+
+// operators = {
+//   "•": {
+//     name: "matmul"
+//   }
+// };
+
+function matmul(A, B) {
+  let C = new Array(3);
+  for (let i = 0; i < 3; i++) {
+    C[i] = new Array(3);
+  }
+
+  for (let i = 0; i < 3; i++) {
+    for (let k = 0; k < 3; k++) {
+      C[i][k] = 0;
+      for (let j = 0; j < 3; j++) {
+        C[i][k] += A[i][j] * B[j][k];
+      }
+    }
+  }
+  return C;
+};
+
+function norm(vec) {
+  return Math.sqrt(vec[0]**2 + vec[1]**2 + vec[2]**2);
+};
+
+function normalize(vec) {
+  const magnitude = norm(vec);
+  return [vec[0]/magnitude, vec[1]/magnitude, vec[2]/magnitude];
+};
+
+function vec_subtract(vec1, vec2) {
+  return [vec1[0]-vec2[0], vec1[1]-vec2[1], vec1[2]-vec2[2]];
+};
+
+function vec_scale(scalar, vec) {
+  return [scalar * vec[0], scalar * vec[1], scalar * vec[2]];
+};
+
+function dot_prod(vec1, vec2) {
+  return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
+};
 
 
+function gram_schmidt(A) {
+  A[0] = normalize(A[0]);
 
+  A[1] = vec_subtract(A[1], vec_scale(dot_prod(A[0], A[1]), A[0]) );
+  A[1] = normalize(A[1]);
+
+  A[2] = vec_subtract(A[2], vec_scale(dot_prod(A[0], A[2]), A[0]));
+  A[2] = vec_subtract(A[2], vec_scale(dot_prod(A[1], A[2]), A[1]));
+  A[2] = normalize(A[2]);
+
+  return [A[0], A[1], A[2]];
+};
 
 function renderRotation() {
-  dragRotate(scene3d);
-}
 
-
-
-function dragRotate(el) {
-
-  // var pw = Math.cos(deltapsi/2);
-  // var px = Math.sin(deltapsi/2);
-
-  // var rw = Math.cos(-deltatheta/2);
-  // var ry = Math.sin(-deltatheta/2);
-
-  // var newqw = pw*qw-px*qx;
-  // var newqx = pw*qx-px*qw;
-  // var newqy = pw*qy-px*qz;
-  // var newqz = pw*qz-px*qy;
-  // qw = newqw;
-  // qx = newqx;
-  // qy = newqy;
-  // qz = newqz;
-
-  // newqw = rw*qw-ry*qy;
-  // newqx = rw*qx+ry*qz;
-  // newqy = rw*qy+ry*qw;
-  // newqz = rw*qz-ry*qx;
-  // qw = newqw;
-  // qx = newqx;
-  // qy = newqy;
-  // qz = newqz;
-  // var norm = Math.sqrt(qw*qw+qx*qx+qy*qy+qz*qz);
-  // qw /= norm;
-  // qx /= norm;
-  // qy /= norm;
-  // qz /= norm;
-
-  // psi = (180/Math.PI) * Math.atan2( 2*(qy*qz-qw*qx), 1-2*(qx*qx+qy*qy) );
-  // theta = -(180/Math.PI) * Math.asin(2*(qw*qy+qx*qz));
-  // phi = (180/Math.PI) * Math.atan2( 2*(qx*qy-qw*qz), 1-2*(qy*qy-qz*qz) );
-
-  // var a = Math.acos((3*qw*qw-qx*qx-qy*qy-qz*qz-1)/2);
-  // if (Math.abs(a) > 0.95){
-  //   a = - Math.acos((3*qw*qw-qx*qx-qy*qy-qz*qz-1)/2);
-  // }
- 
-  // var x = (-2*qw*qx)/Math.sin(a);
-  // var y = (-2*qw*qy)/Math.sin(a);
-  // var z = (-2*qw*qz)/Math.sin(a);
-  // console.log(`x = ${x}, y = ${y}, z = ${z}, sin(a) = ${Math.sin(a)}`)
-  // a *= (180/Math.PI);
-  
-  // cube.style.transform = `translateZ(-100px) rotateX(${psi}deg) rotateY(${theta}deg) rotateZ(${phi}deg)`;
-
-  // cube.style.transform = `translateZ(-100px) rotate3d(${x},${y},${z},${a}deg)`;
-
-
-
-  psi *= (Math.PI/180);
-  theta *= (Math.PI/180);
-  phi *= (Math.PI/180);
-
-  if ((psi+deltapsi <= Math.PI/4) || psi+deltapsi >= 7*Math.PI/4) {
-
-    psi += deltapsi;
-    if (psi > 2 * Math.PI) {
-      psi -= 2 * Math.PI;
-    }
-    if (psi < 0) {
-      psi += 2 * Math.PI;
-    }
-  }
-
-  // psi += deltapsi;
-  // if (psi > 2 * Math.PI) {
-  //   psi -= 2 * Math.PI;
-  // }
-  // if (psi < 0) {
-  //   psi += 2 * Math.PI;
-  // }
-
-
-  var newtheta = Math.asin(Math.cos(deltatheta)*Math.sin(theta)+Math.sin(deltatheta)*Math.cos(theta)*Math.cos(psi));
-
-  var newpsi = Math.atan2(Math.cos(theta)*Math.sin(psi),-Math.sin(deltatheta)*Math.sin(theta)+Math.cos(deltatheta)*Math.cos(theta)*Math.cos(psi));
-
-  // if (theta >= Math.PI) {
-  //   theta = theta - 2 * Math.PI;
-  // } else if (theta <= -180) {
-  //   theta = theta + 2 * Math.PI;
-  // } else {
-  //   theta = theta;
-  // }
-
-  // if (psi >= Math.PI) {
-  //   psi = psi - 2 * Math.PI;
-  // } else if (psi <= -180) {
-  //   psi = psi + 2 * Math.PI;
-  // } else {
-  //   psi = psi;
-  // }
-
-  // if (phi >= 2*Math.PI) {
-  //   phi = phi - 2 * Math.PI;
-  // } else if (phi <= -180) {
-  //   phi = phi + 2 * Math.PI;
-  // } else {
-  //   phi = phi;
-  // }
-  
-
-  var newphi = Math.atan2(Math.cos(deltatheta)*Math.cos(theta)*Math.sin(phi)-Math.sin(deltatheta)*(Math.cos(psi)*Math.sin(theta)*Math.sin(phi)-Math.sin(psi)*Math.cos(phi)),Math.cos(deltatheta)*Math.cos(theta)*Math.cos(phi)-Math.sin(deltatheta)*(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
-
-  if (Math.sin(newtheta) == 0 && newtheta < 0) {
-    newphi = Math.atan2(-(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi)),-(Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi))));
-    newpsi = 0
-  } else if (Math.sin(newtheta) == 0 && newtheta > 0) {
-    newphi = -Math.atan2(Math.sin(psi)*Math.sin(theta)*Math.cos(phi)-Math.cos(psi)*Math.sin(phi),Math.sin(deltatheta)*Math.cos(theta)*Math.cos(phi)+Math.cos(deltatheta)(Math.cos(psi)*Math.sin(theta)*Math.cos(phi)+Math.sin(psi)*Math.sin(phi)));
-    newpsi = 0;
-  }
-
-  // if (Math.max(Math.abs(newphi), Math.abs(newtheta), Math.abs(newpsi)) <= Math.pi/2) {
-
-  //   psi = (180/Math.PI) * newpsi;
-  //   theta = (180/Math.PI) * newtheta;
-  //   phi = (180/Math.PI) * newphi;
-  // }
-
-  // if (newpsi <= Math.pi/4 || newpsi >= 7*Math.pi/4) {
-  //   psi = (180/Math.PI) * newpsi;
-  // }
-
-  if (newpsi < 0) {
-    newpsi += 2*Math.PI;
-  }
-  
-  if (newtheta < 0) {
-    newtheta += 2*Math.PI;
-  }
-
-  if (newphi < 0) {
-    newphi += 2*Math.PI;
-  }
-
-  if ( (newpsi <= Math.PI/4 && newtheta <= Math.PI/4) || (newpsi >= 7*Math.PI/4 && newtheta >= 7*Math.PI/4) || (newpsi <= Math.PI/4 && newtheta >= 7*Math.PI/4) || (newpsi >= 7*Math.PI/4 && newtheta <= Math.PI/4) ) {
-    psi = (180/Math.PI) * newpsi;
-    theta = (180/Math.PI) * newtheta;
-    phi = (180/Math.PI) * newphi;
-  } else {
-    psi *= (180/Math.PI);
-    theta *= (180/Math.PI);
-    phi *= (180/Math.PI);
-  }
-
-  
-
-  if (theta >= 0) {
-    thetaRange.value = theta;
-  } else {
-    thetaRange.value = theta + 360;
-  }
-
-  if (psi >= 0) {
-    psiRange.value = psi;
-  } else {
-    psiRange.value = psi + 360;
-  }
-
-  if (phi >= 0) {
-    phiRange.value = phi;
-  } else {
-    phiRange.value = phi + 360;
-  }
-
-  thetalabel.innerText = `${thetaRange.value}deg`;
-  psilabel.innerText = `${psiRange.value}deg`;
-  philabel.innerText = `${phiRange.value}deg`;
-
-  // theta = thetaRange.value;
-  // psi = psiRange.value;
-  // phi = phiRange.value;
-
-  // thetalabel.innerText = `${thetaRange.value}deg`;
-  // psilabel.innerText = `${psiRange.value}deg`;
-  // philabel.innerText = `${phiRange.value}deg`;
-
-  rotatecube();
-}
-
-function rotatecube() {
-
-  theta = thetaRange.value;
-  psi = psiRange.value;
-  phi = phiRange.value;
-  cube.style.transform = `translateZ(-100px) rotateX(${psi}deg) rotateY(${theta}deg) rotateZ(${phi}deg)`;
-  // cube.style.transform = `rotate3d(0,1,0,${10*deltatheta}deg) rotate3d(1,0,0,${10*deltapsi}deg)`;
-  thetalabel.innerText = `${thetaRange.value}deg`;
-  psilabel.innerText = `${psiRange.value}deg`;
-  philabel.innerText = `${phiRange.value}deg`;
-
-}
+  delta = rotation_delta(mouse_vector);
+  rotation_state = matmul(delta, rotation_state);
+  gram_schmidt(rotation_state);
+  cube.style.transform = `translateZ(-100px) matrix3d(${rotation_state[0][0]}, ${rotation_state[0][1]}, ${rotation_state[0][2]}, 0,
+                                                      ${rotation_state[1][0]}, ${rotation_state[1][1]}, ${rotation_state[1][2]}, 0,
+                                                      ${rotation_state[2][0]}, ${rotation_state[2][1]}, ${rotation_state[2][2]}, 0,
+                                                      0,                       0,                       0,                       1)`;
+};
 
 // backface visibility
 var backfaceCheckbox = document.querySelector('.backface-checkbox');
