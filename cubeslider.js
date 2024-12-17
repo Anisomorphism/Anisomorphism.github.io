@@ -53,12 +53,12 @@ setInterval(function() {
   }
 }, 10);
 
-scene3d.addEventListener('touchstart', function(e) {
-  scene3d.touched = true;
-  scene3d.touchon = true;
-  lastTouchX = e.touches[0].pageX;
-  lastTouchY = e.touches[0].pageY;
-});
+// scene3d.addEventListener('touchstart', function(e) {
+//   scene3d.touched = true;
+//   scene3d.touchon = true;
+//   lastTouchX = e.touches[0].pageX;
+//   lastTouchY = e.touches[0].pageY;
+// });
 
 window.addEventListener('touchend', function(e) {
   scene3d.touched = false;
@@ -73,14 +73,9 @@ function rotation_delta(mousevec) {
 
   return [[1 + (Math.cos(angle)-1)*axis_y**2, (1-Math.cos(angle))*axis_x*axis_y,  Math.sin(angle)*axis_y], 
           [(1-Math.cos(angle))*axis_x*axis_y, 1 + (Math.cos(angle)-1)*axis_x**2, -Math.sin(angle)*axis_x], 
-          [-Math.sin(angle)*axis_y,           Math.sin(angle)*axis_y,             Math.cos(angle)]];
+          [-Math.sin(angle)*axis_y,           Math.sin(angle)*axis_x,             Math.cos(angle)]];
 };
 
-// operators = {
-//   "•": {
-//     name: "matmul"
-//   }
-// };
 
 function matmul(A, B) {
   let C = new Array(3);
@@ -120,6 +115,16 @@ function dot_prod(vec1, vec2) {
   return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
 };
 
+function transpose(A) {
+  let B = Array(3);
+  for (let i = 0; i < 3; i++) {
+    B[i] = Array(3);
+    for (let j = 0; j < 3; j++) {
+      B[i][j] = A[j][i]
+    }
+  }
+  return B;
+};
 
 function gram_schmidt(A) {
   A[0] = normalize(A[0]);
@@ -136,8 +141,8 @@ function gram_schmidt(A) {
 
 function renderRotation() {
 
-  delta = rotation_delta(mouse_vector);
-  rotation_state = matmul(delta, rotation_state);
+  let delta = rotation_delta(mouse_vector);
+  rotation_state = matmul(rotation_state, delta);
   gram_schmidt(rotation_state);
   cube.style.transform = `translateZ(-100px) matrix3d(${rotation_state[0][0]}, ${rotation_state[0][1]}, ${rotation_state[0][2]}, 0,
                                                       ${rotation_state[1][0]}, ${rotation_state[1][1]}, ${rotation_state[1][2]}, 0,
