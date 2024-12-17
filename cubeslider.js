@@ -8,6 +8,7 @@ var mouse_vector = [0, 0];
 var isSceneClickedAndMouseOn = false;
 var lastTouchX;
 var lastTouchY;
+var touchStarted;
 var isSceneTouchedAndFingerOn = false;
 
 
@@ -41,17 +42,61 @@ window.addEventListener('mouseup', function(e) {
 });
 
 
-window.addEventListener('touchmove', function(e) {
+// window.addEventListener('touchmove', function(e) {
 
-  console.log(scene3d.touched);
-});
+//   console.log(scene3d.touched);
+// });
 
-setInterval(function() {
-  if (scene3d.touched) {
-    renderRotation();
-    isSceneTouchedAndFingerOn = false;
+scene3d.addEventListener("touchstart", doTouchStart, false);
+
+function doTouchStart(e) {
+  if (e.touches.length != 1) {
+    doTouchCancel();
+    return;
+ }
+
+  e.preventDefault();
+  lastTouchX = e.touches[0].pageX;
+  lastTouchY = e.touches[0].pageY;
+  scene3d.addEventListener("touchmove", doTouchMove, false);
+  scene3d.addEventListener("touchend", doTouchEnd, false);
+  scene3d.addEventListener("touchcancel", doTouchCancel, false);
+  touchStarted = true;
+};
+
+function doTouchMove(e) {
+  if (e.touches.length != 1 || !touchStarted) {
+    doTouchCancel();
+    return;
   }
-}, 10);
+
+  e.preventDefault();
+  mouse_vector[0] = -0.01*(e.touches[0].pageX - lastTouchX);
+  mouse_vector[1] = -0.01*(e.touches[0].pageY - lastTouchY);
+  lastTouchX = e.touches[0].pageX;
+  lastTouchY = e.touches[0].pageY;
+  renderRotation();
+};
+
+function doTouchEnd(e) {
+  doTouchCancel();
+}
+
+function doTouchCancel() {
+  if (touchStarted) {
+     touchStarted = false;
+     scene3d.removeEventListener("touchmove", doTouchMove, false);
+     scene3d.removeEventListener("touchend", doTouchEnd, false);
+     scene3d.removeEventListener("touchcancel", doTouchCancel, false);
+  }
+};
+
+// setInterval(function() {
+//   if (scene3d.touched) {
+//     renderRotation();
+//     isSceneTouchedAndFingerOn = false;
+//   }
+// }, 10);
 
 // scene3d.addEventListener('touchstart', function(e) {
 //   scene3d.touched = true;
