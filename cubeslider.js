@@ -5,38 +5,53 @@ var scene3d = document.getElementById("3dscene");
 var cube = document.getElementById("cube");
 var rotation_state = [[1, 0 ,0], [0, 1, 0], [0, 0, 1]];
 var mouse_vector = [0, 0];
-var isSceneClickedAndMouseOn = false;
+var mouseClicked;
+var blurred;
 var lastTouchX;
 var lastTouchY;
 var touchStarted;
 
 
 //mouse dragging code
-window.addEventListener('mousemove', function(event) {
-  if (scene3d.clicked && scene3d.mouseon) {
-    mouse_vector[0] = - 0.01 * event.movementX;
-    mouse_vector[1] = - 0.01 * event.movementY;
+scene3d.addEventListener('mousedown', doMouseDown, false);
 
-    isSceneClickedAndMouseOn = true;
+function doMouseDown(e) {
+  if (mouseClicked) {
+    return;
   }
-});
+  mouseClicked = true;
+  window.addEventListener('mousemove', doMouseMove, false);
+  window.addEventListener('mouseup', doMouseUp, false);
+  window.addEventListener('blur', doBlurMouse, false);
+};
 
-setInterval(function() {
-  if (isSceneClickedAndMouseOn) {
-    renderRotation();
-    isSceneClickedAndMouseOn = false;
+function doMouseMove(e) {
+  if (!mouseClicked) {
+    return;
   }
-}, 10);
+  if (blurred) {
+    doBlurMouse();
+    return;
+  }
+  mouse_vector[0] = - 0.01 * e.movementX;
+  mouse_vector[1] = - 0.01 * e.movementY;
+  renderRotation();
+};
 
-scene3d.addEventListener('mousedown', function(e) {
-  scene3d.clicked = true;
-  scene3d.mouseon = true;
-});
+function doBlurMouse(e) {
+  blurred = true;
+  doMouseUp();
+}
 
-window.addEventListener('mouseup', function(e) {
-  scene3d.clicked = false;
-  scene3d.mouseon = false;
-});
+function doMouseUp(e) {
+  if (mouseClicked) {
+    mouseClicked = false;
+    blurred = false;
+    window.removeEventListener('mousemove', doMouseMove, false);
+    window.removeEventListener('mouseup', doMouseUp, false);
+    window.removeEventListener('blur', doBlurMouse, false);
+  }
+}
 
 
 // touch code
@@ -51,15 +66,20 @@ function doTouchStart(e) {
   e.preventDefault();
   lastTouchX = e.touches[0].pageX;
   lastTouchY = e.touches[0].pageY;
-  scene3d.addEventListener("touchmove", doTouchMove, false);
-  scene3d.addEventListener("touchend", doTouchEnd, false);
-  scene3d.addEventListener("touchcancel", doTouchCancel, false);
+  scene3d.addEventListener('touchmove', doTouchMove, false);
+  scene3d.addEventListener('touchend', doTouchEnd, false);
+  scene3d.addEventListener('touchcancel', doTouchCancel, false);
+  scene3d.addEventListener('blur', doTouchBlur, false);
   touchStarted = true;
 };
 
 function doTouchMove(e) {
   if (e.touches.length != 1 || !touchStarted) {
     doTouchCancel();
+    return;
+  }
+  if (blurred) {
+    doTouchBlur();
     return;
   }
 
@@ -71,6 +91,11 @@ function doTouchMove(e) {
   renderRotation();
 };
 
+function doTouchBlur(e) {
+  blurred = true;
+  doTouchCancel();
+}
+
 function doTouchEnd(e) {
   doTouchCancel();
 }
@@ -78,9 +103,10 @@ function doTouchEnd(e) {
 function doTouchCancel() {
   if (touchStarted) {
      touchStarted = false;
-     scene3d.removeEventListener("touchmove", doTouchMove, false);
-     scene3d.removeEventListener("touchend", doTouchEnd, false);
-     scene3d.removeEventListener("touchcancel", doTouchCancel, false);
+     blurred = false;
+     scene3d.removeEventListener('touchmove', doTouchMove, false);
+     scene3d.removeEventListener('touchend', doTouchEnd, false);
+     scene3d.removeEventListener('touchcancel', doTouchCancel, false);
   }
 };
 
