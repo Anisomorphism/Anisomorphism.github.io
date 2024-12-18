@@ -1,6 +1,12 @@
 /* ==========================================================================
    Base styles: opinionated defaults
    ========================================================================== */
+   @media only screen and (device-width: 1280px),
+   only screen and (max-width:1280px) {
+   .css-element {
+   }
+   }
+
 
 html,
 button,
@@ -94,7 +100,6 @@ textarea {
 }
 
 body {
-    width: 638px;
     background-color: #05464a;
     color: #93a1a1;
     text-rendering: optimizeLegibility;
@@ -105,13 +110,13 @@ img {
 }
 
 header {
-    padding-right: 10px;
+    vertical-align: middle;
 }
 
 h1.alpha {
     color: #6c71c4;
     font-size: 24px;
-    text-align: right;
+    text-align: auto;
     text-transform: uppercase;
     letter-spacing: 24px;
     text-rendering: optimizeLegibility;
@@ -122,7 +127,6 @@ h1.alpha {
     font-kerning: normal;
     font-variant-ligatures: discretionary-ligatures;
     margin-bottom: 24px;
-    padding-left: 480px;
     padding-right: 0px;
 }
 
