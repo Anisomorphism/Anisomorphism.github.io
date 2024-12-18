@@ -9,10 +9,9 @@ var isSceneClickedAndMouseOn = false;
 var lastTouchX;
 var lastTouchY;
 var touchStarted;
-var isSceneTouchedAndFingerOn = false;
 
 
-
+//mouse dragging code
 window.addEventListener('mousemove', function(event) {
   if (scene3d.clicked && scene3d.mouseon) {
     mouse_vector[0] = - 0.01 * event.movementX;
@@ -37,16 +36,10 @@ scene3d.addEventListener('mousedown', function(e) {
 window.addEventListener('mouseup', function(e) {
   scene3d.clicked = false;
   scene3d.mouseon = false;
-  // deltatheta = 0;
-  // deltapsi = 0;
 });
 
 
-// window.addEventListener('touchmove', function(e) {
-
-//   console.log(scene3d.touched);
-// });
-
+// touch code
 scene3d.addEventListener("touchstart", doTouchStart, false);
 
 function doTouchStart(e) {
@@ -91,30 +84,17 @@ function doTouchCancel() {
   }
 };
 
-// setInterval(function() {
-//   if (scene3d.touched) {
-//     renderRotation();
-//     isSceneTouchedAndFingerOn = false;
-//   }
-// }, 10);
-
-// scene3d.addEventListener('touchstart', function(e) {
-//   scene3d.touched = true;
-//   scene3d.touchon = true;
-//   lastTouchX = e.touches[0].pageX;
-//   lastTouchY = e.touches[0].pageY;
-// });
-
 window.addEventListener('touchend', function(e) {
   scene3d.touched = false;
   scene3d.touchon = false;
 });
 
+
+// rotation math
 function rotation_delta(mousevec) {
   angle = Math.sqrt(mousevec[0]**2 + mousevec[1]**2);
   axis_x = -mousevec[1]/angle;
   axis_y = mousevec[0]/angle;
-  
 
   return [[1 + (Math.cos(angle)-1)*axis_y**2, (1-Math.cos(angle))*axis_x*axis_y,  Math.sin(angle)*axis_y], 
           [(1-Math.cos(angle))*axis_x*axis_y, 1 + (Math.cos(angle)-1)*axis_x**2, -Math.sin(angle)*axis_x], 
@@ -160,17 +140,6 @@ function dot_prod(vec1, vec2) {
   return vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2];
 };
 
-function transpose(A) {
-  let B = Array(3);
-  for (let i = 0; i < 3; i++) {
-    B[i] = Array(3);
-    for (let j = 0; j < 3; j++) {
-      B[i][j] = A[j][i]
-    }
-  }
-  return B;
-};
-
 function gram_schmidt(A) {
   A[0] = normalize(A[0]);
 
@@ -185,7 +154,6 @@ function gram_schmidt(A) {
 };
 
 function renderRotation() {
-
   let delta = rotation_delta(mouse_vector);
   rotation_state = matmul(rotation_state, delta);
   gram_schmidt(rotation_state);
