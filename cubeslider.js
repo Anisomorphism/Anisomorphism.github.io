@@ -84,11 +84,6 @@ function doTouchCancel() {
   }
 };
 
-window.addEventListener('touchend', function(e) {
-  scene3d.touched = false;
-  scene3d.touchon = false;
-});
-
 
 // rotation math
 function rotation_delta(mousevec) {
