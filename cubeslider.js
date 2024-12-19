@@ -10,6 +10,8 @@ var blurred;
 var lastTouchX;
 var lastTouchY;
 var touchStarted;
+var axis_x;
+var axis_y;
 
 
 //mouse dragging code
@@ -176,6 +178,9 @@ function gram_schmidt(A) {
 
 function renderRotation() {
   let delta = rotation_delta(mouse_vector);
+  if (isNaN(axis_x) || isNaN(axis_y)) {
+    return;
+  }
   rotation_state = matmul(rotation_state, delta);
   gram_schmidt(rotation_state);
   cube.style.transform = `translateZ(-100px) matrix3d(${rotation_state[0][0]}, ${rotation_state[0][1]}, ${rotation_state[0][2]}, 0,
