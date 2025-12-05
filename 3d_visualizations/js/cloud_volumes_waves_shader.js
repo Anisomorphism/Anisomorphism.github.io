@@ -236,8 +236,8 @@ function init() {
             map: { value: texture },
             cameraPos: { value: new THREE.Vector3() },
             // threshold: { value: 0.25 },
-            threshold: { value: 0.2 },
-            opacity: { value: 0.25 },
+            threshold: { value: 0.37 },
+            opacity: { value: 0.86 },
             range: { value: 0.1 },
             steps: { value: 100 },
             frame: { value: 0 }
@@ -255,8 +255,8 @@ function init() {
 
     const parameters = {
         // threshold: 0.25,
-        threshold: 0.2,
-        opacity: 0.25,
+        threshold: 0.37,
+        opacity: 0.86,
         range: 0.1,
         steps: 100
     };
